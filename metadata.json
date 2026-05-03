@@ -2,7 +2,9 @@
   "name": "Complaint to Action",
   "description": "A professional civic reporting platform for citizens to track active reports and contribute to community infrastructure improvements.",
   "requestFramePermissions": [
-    "geolocation"
+    "geolocation",
+    "camera",
+    "microphone"
   ],
   "majorCapabilities": []
 }

@@ -1,7 +1,16 @@
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { RotateCw, CheckCircle, Clock, Calendar, Users, Hammer, Lightbulb, MapPin, ChevronRight, ClipboardList } from 'lucide-react';
+import { RotateCw, CheckCircle, Clock, Calendar, Users, Hammer, Lightbulb, MapPin, ChevronRight, ClipboardList, Star } from 'lucide-react';
 
-export default function Tracker() {
+import { useTranslation } from '../../contexts/LanguageContext';
+
+import { Report } from '../../types';
+
+export default function Tracker({ report }: { report?: Report }) {
+  const { t, n } = useTranslation();
+  const [rating, setRating] = useState(report?.rating || 0);
+  const estimatedDays = report?.estimatedDays || 5;
+
   return (
     <motion.div 
       initial={{ opacity: 0, x: -20 }}
@@ -11,32 +20,67 @@ export default function Tracker() {
     >
       {/* Case Header Card */}
       <section className="mb-8">
-        <div className="bg-white border border-outline-variant rounded-xl p-8 shadow-sm">
+        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-8 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-4">
             <div>
-              <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2 block">Case #CMP-8829</span>
-              <h1 className="text-3xl font-bold text-on-surface leading-tight">Pothole Damage & Street Lighting Failure</h1>
+              <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2 block">{t('tracker.case_no')} {n(report?.id || 'CMP-8829')}</span>
+              <h1 className="text-3xl font-bold text-on-surface leading-tight">{report?.title || t('tracker.title')}</h1>
             </div>
-            <div className="inline-flex items-center bg-secondary-container text-on-secondary-container px-4 py-1.5 rounded-full text-[13px] font-bold shadow-sm">
-              <RefreshCwIcon className="w-4 h-4 mr-2 animate-spin-slow" />
-              Active Resolution
+            <div className="flex flex-col items-end gap-2">
+              <div className={`inline-flex items-center px-4 py-1.5 rounded-full text-[13px] font-bold shadow-sm ${
+                report?.status === 'Resolved' ? 'bg-green-100 text-green-800' : 'bg-secondary-container text-on-secondary-container'
+              }`}>
+                {report?.status === 'Resolved' ? (
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                ) : (
+                  <RefreshCwIcon className="w-4 h-4 mr-2 animate-spin-slow" />
+                )}
+                {report?.status || t('tracker.active_status')}
+              </div>
+              <div className="inline-flex items-center bg-primary-container/10 text-primary px-3 py-1 rounded-lg text-[11px] font-bold border border-primary/20">
+                <Clock className="w-3 h-3 mr-1.5" />
+                {t('tracker.estimated')}: {n(estimatedDays)} {t('tracker.days')}
+              </div>
             </div>
           </div>
           <p className="text-on-surface-variant max-w-4xl mb-8 leading-relaxed text-base">
-            Large pothole formed at the intersection of Maple and 4th Street following heavy rain. The adjacent street light (ID: SL-402) is also flickering, creating a safety hazard for night-time drivers and pedestrians. Reported on October 12, 2023.
+            {report?.description || t('tracker.desc').split(/(\d+)/).map(part => /\d+/.test(part) ? n(part) : part).join('')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-8 border-t border-surface-container">
             <div>
-              <span className="text-[10px] font-bold text-outline block mb-1 uppercase tracking-widest">CATEGORY</span>
-              <span className="text-[15px] font-bold text-on-surface">Infrastructure</span>
+              <span className="text-[10px] font-bold text-outline block mb-1 uppercase tracking-widest">{t('tracker.category')}</span>
+              <span className="text-[15px] font-bold text-on-surface">{report?.category || t('tracker.infra')}</span>
             </div>
             <div>
-              <span className="text-[10px] font-bold text-outline block mb-1 uppercase tracking-widest">LOCATION</span>
-              <span className="text-[15px] font-bold text-on-surface">District 4 - Westview</span>
+              <span className="text-[10px] font-bold text-outline block mb-1 uppercase tracking-widest">{t('tracker.location')}</span>
+              <span className="text-[15px] font-bold text-on-surface">{t('tracker.loc_val')}</span>
             </div>
             <div>
-              <span className="text-[10px] font-bold text-outline block mb-1 uppercase tracking-widest">PRIORITY</span>
-              <span className="text-[15px] font-bold text-error">High Urgency</span>
+              <span className="text-[10px] font-bold text-outline block mb-1 uppercase tracking-widest">{t('tracker.priority')}</span>
+              <span className={`text-[15px] font-bold ${report?.urgency === 'Critical' ? 'text-error' : 'text-primary'}`}>
+                {report?.urgency || t('tracker.high_urgency')}
+              </span>
+            </div>
+          </div>
+
+          {/* Rating Section */}
+          <div className="mt-8 pt-8 border-t border-surface-container flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div>
+              <h4 className="text-sm font-bold text-primary mb-1">{t('tracker.rating')}</h4>
+              <p className="text-xs text-on-surface-variant">How would you rate the speed and quality of this resolution?</p>
+            </div>
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button 
+                  key={star}
+                  onClick={() => setRating(star)}
+                  className="p-1 transition-transform active:scale-90"
+                >
+                  <Star 
+                    className={`w-8 h-8 ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-outline-variant hover:text-outline'}`}
+                  />
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -44,10 +88,10 @@ export default function Tracker() {
 
       {/* Progress & Team Grid */}
       <section className="grid grid-cols-1 md:grid-cols-12 gap-5 mb-8">
-        <div className="md:col-span-8 bg-white border border-outline-variant rounded-xl p-8 shadow-sm overflow-hidden">
+        <div className="md:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-8 shadow-sm overflow-hidden">
           <div className="flex items-center justify-between mb-10">
-            <h3 className="text-xl font-bold text-primary">Resolution Timeline</h3>
-            <span className="text-[10px] font-bold text-outline uppercase tracking-wider">EST. COMPLETION: OCT 28</span>
+            <h3 className="text-xl font-bold text-primary">{t('tracker.timeline')}</h3>
+            <span className="text-[10px] font-bold text-outline uppercase tracking-wider">{t('tracker.est_completion')}: {t('month.oct')} {n('28')}</span>
           </div>
           
           <div className="relative pt-2">
@@ -56,10 +100,10 @@ export default function Tracker() {
             <div className="absolute top-[8px] left-0 w-[66%] h-[3px] bg-primary rounded-full shadow-sm"></div>
             
             <div className="flex items-start justify-between w-full px-1">
-              <TimelineStep active label="Reported" />
-              <TimelineStep active label="Assessed" />
-              <TimelineStep active label="In Progress" />
-              <TimelineStep active={false} label="Resolved" />
+              <TimelineStep active label={t('tracker.reported')} />
+              <TimelineStep active label={t('tracker.assessed')} />
+              <TimelineStep active label={t('tracker.in_progress')} />
+              <TimelineStep active={false} label={t('tracker.resolved')} />
             </div>
           </div>
         </div>
@@ -69,15 +113,15 @@ export default function Tracker() {
             <ClipboardList className="w-48 h-48" />
           </div>
           <div className="relative z-10">
-            <span className="text-[10px] font-bold text-primary-fixed-dim uppercase tracking-widest">Overall Status</span>
-            <h2 className="text-3xl font-bold mt-2 tracking-tight">65% Processed</h2>
+            <span className="text-[10px] font-bold text-primary-fixed-dim uppercase tracking-widest">{t('tracker.overall_status')}</span>
+            <h2 className="text-3xl font-bold mt-2 tracking-tight">{n('65')}% {t('tracker.processed')}</h2>
           </div>
           <div className="flex items-center gap-3 relative z-10">
             <div className="flex -space-x-3">
               <Avatar src="https://images.unsplash.com/photo-1552058544-f2b08422138a?auto=format&fit=crop&q=80&w=100" />
               <Avatar src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=100" />
             </div>
-            <span className="text-[10px] font-bold text-primary-fixed uppercase tracking-wider">2 Assignees</span>
+            <span className="text-[10px] font-bold text-primary-fixed uppercase tracking-wider">{n('2')} {t('tracker.assignees')}</span>
           </div>
         </div>
       </section>
@@ -165,7 +209,7 @@ function ActionCard({
   const Icon = type === 'inspection' ? CheckCircle : type === 'repair' ? Hammer : Lightbulb;
 
   return (
-    <div className={`bg-white border rounded-xl overflow-hidden transition-all duration-300 ${
+    <div className={`bg-surface-container-lowest border rounded-xl overflow-hidden transition-all duration-300 ${
       isHighlighted ? 'border-l-4 border-l-primary border-outline' : 'border-outline-variant hover:border-primary/50'
     } ${isMuted ? 'opacity-60 grayscale-[0.5]' : ''}`}>
       <div className="p-8 flex flex-col md:flex-row items-start gap-8">

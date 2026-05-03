@@ -1,4 +1,4 @@
-export type ViewState = 'dashboard' | 'new-complaint' | 'analysis' | 'tracker';
+export type ViewState = 'dashboard' | 'new-complaint' | 'analysis' | 'tracker' | 'profile';
 
 export interface Report {
   id: string;
@@ -9,12 +9,22 @@ export interface Report {
   timeAgo: string;
   description: string;
   imageUrl?: string;
+  estimatedDays?: number;
+  rating?: number;
 }
 
 export interface Activity {
   id: string;
-  type: 'resolved' | 'comment' | 'photo';
+  type: 'resolved' | 'comment' | 'photo' | 'pending';
   title: string;
   detail: string;
   timeAgo: string;
+}
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  isRead: boolean;
 }

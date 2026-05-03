@@ -1,5 +1,6 @@
 import { LayoutDashboard, PlusSquare, BarChart3, ClipboardList } from 'lucide-react';
 import { ViewState } from '../../types';
+import { useTranslation } from '../../contexts/LanguageContext';
 
 interface BottomNavBarProps {
   currentView: ViewState;
@@ -7,15 +8,17 @@ interface BottomNavBarProps {
 }
 
 export default function BottomNavBar({ currentView, onNavigate }: BottomNavBarProps) {
+  const { t } = useTranslation();
+  
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'new-complaint', label: 'New', icon: PlusSquare },
-    { id: 'analysis', label: 'Analysis', icon: BarChart3 },
-    { id: 'tracker', label: 'Tracker', icon: ClipboardList },
+    { id: 'dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+    { id: 'new-complaint', label: t('nav.new'), icon: PlusSquare },
+    { id: 'analysis', label: t('nav.analysis'), icon: BarChart3 },
+    { id: 'tracker', label: t('nav.tracker'), icon: ClipboardList },
   ] as const;
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 px-2 bg-white border-t border-outline-variant">
+    <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 px-2 bg-surface-container-lowest border-t border-outline-variant">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = currentView === tab.id;
